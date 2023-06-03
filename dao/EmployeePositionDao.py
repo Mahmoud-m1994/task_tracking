@@ -8,7 +8,7 @@ from utilities.DateValidator import (
     is_date_in_past,
     is_existing_end_date_after_start_date,
     is_existing_end_date_after_end_date,
-    is_existing_start_date_before_end_date
+    is_existing_start_date_after_end_date
 )
 
 
@@ -50,8 +50,8 @@ def create_employee_position(employee_position: EmployeePosition, responsible_id
                                      response_code=MySqlResponse.BAD_REQUEST)
 
             # Check if the existing position starts before the new position ends
-            if is_existing_start_date_before_end_date(str(existing_end_date), str(employee_position.end_date)):
-                return MySqlResponse("Cannot end a new position after the existing one starts",
+            if is_existing_start_date_after_end_date(str(existing_end_date), str(employee_position.end_date)):
+                return MySqlResponse("Cannot end a new position before the existing one starts",
                                      response_code=MySqlResponse.BAD_REQUEST)
 
         # Create the new position

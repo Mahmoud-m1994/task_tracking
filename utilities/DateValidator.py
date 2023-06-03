@@ -22,7 +22,7 @@ def is_existing_end_date_after_end_date(existing_end_date_str: str, new_end_date
     return existing_end_date >= new_end_date
 
 
-def is_existing_start_date_before_end_date(existing_start_date_str: str, new_end_date_str: str) -> bool:
+def is_existing_start_date_after_end_date(existing_start_date_str: str, new_end_date_str: str) -> bool:
     existing_start_date = datetime.strptime(existing_start_date_str, "%Y-%m-%d %H:%M:%S").date()
     new_end_date = datetime.strptime(new_end_date_str, "%Y-%m-%d").date()
-    return existing_start_date <= new_end_date
+    return existing_start_date >= new_end_date
