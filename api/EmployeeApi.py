@@ -5,6 +5,7 @@ from flask import Blueprint, request
 from dao import EmployeeDao
 from model.Employee import Employee
 from model.MySqlResponse import MySqlResponse
+from utilities.UuIdGenrator import generate_text_uuid
 
 employee_api = Blueprint("employee_api", __name__)
 dao = EmployeeDao
@@ -16,7 +17,7 @@ def create_employee():
     name = data.get("name")
     responsible_id = data.get("responsible_id")
     is_new_admin = data.get("is_admin")
-    employee_id = generate_text_uuid()
+    employee_id = generate_text_uuid('employee-id')
     employee = Employee(employee_id=employee_id, name=name, is_admin=is_new_admin)
     print(employee.employee_id, employee.name)
     response = dao.create_employee(employee, responsible_id)
@@ -77,9 +78,3 @@ def delete_employee(employee_id):
     responsible_id = data.get("responsible_id")  # Get the responsible_id from the JSON payload
     response = dao.delete_employee(employee_id, responsible_id)
     return json.dumps(response.__dict__)
-
-
-def generate_text_uuid():
-    unique_id = str(uuid.uuid4())
-    text_uuid = 'employee-id_' + unique_id
-    return text_uuid
