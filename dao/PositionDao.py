@@ -12,6 +12,13 @@ def create_position(position: Position, responsible_id: str) -> MySqlResponse:
     cursor = connection.cursor()
 
     try:
+        query = "SELECT COUNT(*) FROM task_tracking.Position WHERE name = %s OR position_id = %s"
+        cursor.execute(query, (position.name, position.position_id))
+        result = cursor.fetchone()
+        if result[0] > 0:
+            return MySqlResponse("Position with the same name or position_id already exists",
+                                 response_code=MySqlResponse.ALREADY_EXISTING)
+
         query = "INSERT INTO task_tracking.Position (name) VALUES (%s)"
         cursor.execute(query, (position.name,))
         connection.commit()
