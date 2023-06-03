@@ -56,9 +56,13 @@ def update_position(position_id):
     return json.dumps(response.__dict__)
 
 
-@position_api.route("/position/<int:position_id>", methods=["DELETE"])
-def delete_position(position_id):
+@position_api.route("/position", methods=["DELETE"])
+def delete_position_api():
     data = request.get_json()
+    position_id = data.get("position_id")
+    position_name = data.get("name")
     responsible_id = data.get("responsible_id")
-    response = dao.delete_position(position_id, responsible_id)
+
+    position = Position(position_id=position_id, name=position_name)
+    response = dao.delete_position(position, responsible_id)
     return json.dumps(response.__dict__)
