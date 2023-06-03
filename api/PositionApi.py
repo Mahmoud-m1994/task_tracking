@@ -32,18 +32,14 @@ def get_positions():
         return json.dumps(response.__dict__)
 
 
-@position_api.route("/position/<int:position_id>", methods=["GET"])
-def get_position_by_id(position_id):
-    response = dao.get_position_by_id(position_id)
-    if response.response_code == MySqlResponse.OK:
-        position = response.response
-        response_data = {
-            "response": position.__dict__,
-            "response_code": response.response_code
-        }
-        return json.dumps(response_data)
-    else:
-        return json.dumps(response.__dict__)
+@position_api.route("/position", methods=["GET"])
+def get_position_by_id():
+    data = request.get_json()
+    position_id = data.get("position_id")
+    position_name = data.get("name")
+    position = Position(position_id=position_id, name=position_name)
+    response = dao.get_position_by_id_or_name(position)
+    return json.dumps(response.__dict__)
 
 
 @position_api.route("/position/<int:position_id>", methods=["PUT"])

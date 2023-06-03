@@ -55,13 +55,13 @@ def fetch_positions() -> MySqlResponse:
         disconnect_from_mysql(connection)
 
 
-def get_position_by_id(position_id: int) -> MySqlResponse:
+def get_position_by_id_or_name(position: Position) -> MySqlResponse:
     connection = connect_to_mysql()
     cursor = connection.cursor()
 
     try:
-        query = "SELECT * FROM task_tracking.Position WHERE position_id = %s"
-        cursor.execute(query, (position_id,))
+        query = "SELECT * FROM task_tracking.Position WHERE name = %s OR position_id = %s"
+        cursor.execute(query, (position.name, position.position_id))
         row = cursor.fetchone()
 
         if row:
