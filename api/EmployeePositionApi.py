@@ -4,6 +4,7 @@ from datetime import datetime
 from dao import EmployeePositionDao
 from model.EmployeePosition import EmployeePosition
 from model.MySqlResponse import MySqlResponse
+from utilities.JsonWithDateEncoder import JsonWithDateEncoder
 
 employee_position_api = Blueprint('employee_position_api', __name__)
 dao = EmployeePositionDao
@@ -43,9 +44,9 @@ def get_positions_by_employee_id(employee_id):
             "response": [position.__dict__ for position in positions],
             "response_code": response.response_code
         }
-        return json.dumps(response_data)
+        return json.dumps(response_data, cls=JsonWithDateEncoder)
     else:
-        return json.dumps(response.__dict__)
+        return json.dumps(response.__dict__, cls=JsonWithDateEncoder)
 
 
 @employee_position_api.route('/employee_position/active/<employee_id>', methods=['GET'])
