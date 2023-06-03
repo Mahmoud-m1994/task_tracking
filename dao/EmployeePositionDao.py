@@ -35,7 +35,7 @@ def create_employee_position(employee_position: EmployeePosition, responsible_id
         cursor.execute(query, (employee_position.employee_id,))
         row = cursor.fetchone()
 
-        if row:
+        if row and employee_position.is_active != 1:
             print('meh')
             print(str(row[0]))
             existing_end_date = row[0]
@@ -54,21 +54,24 @@ def create_employee_position(employee_position: EmployeePosition, responsible_id
                 return MySqlResponse("Cannot end a new position before the existing one starts",
                                      response_code=MySqlResponse.BAD_REQUEST)
 
-        # Create the new position
-        create_position_query = "INSERT INTO task_tracking.employee_position " \
-                                "(employee_id, position_id, start_date, end_date, created_at, is_active) " \
-                                "VALUES (%s, %s, %s, %s, %s, %s)"
-        cursor.execute(create_position_query, (
-            employee_position.employee_id,
-            employee_position.position_id,
-            employee_position.start_date,
-            employee_position.end_date,
-            datetime.now(),
-            employee_position.is_active
-        ))
-        connection.commit()
+            # Create the new position
+            create_position_query = "INSERT INTO task_tracking.employee_position " \
+                                    "(employee_id, position_id, start_date, end_date, created_at, is_active) " \
+                                    "VALUES (%s, %s, %s, %s, %s, %s)"
+            cursor.execute(create_position_query, (
+                employee_position.employee_id,
+                employee_position.position_id,
+                employee_position.start_date,
+                employee_position.end_date,
+                datetime.now(),
+                employee_position.is_active
+            ))
+            connection.commit()
 
-        return MySqlResponse("Employee position created successfully", response_code=MySqlResponse.CREATED)
+            return MySqlResponse("Employee position created successfully", response_code=MySqlResponse.CREATED)
+        else:
+            return MySqlResponse("Already has active position, do you want to set this one to active anyway ?",
+                                 response_code=MySqlResponse.ALREADY_EXISTING)
 
     except Exception as e:
         return MySqlResponse(str(e), response_code=MySqlResponse.ERROR)
