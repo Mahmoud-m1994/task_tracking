@@ -222,7 +222,7 @@ def change_position_dates(
         disconnect_from_mysql(connection)
 
 
-def delete_position(employee_id: str, position_id: int, responsible_id: str):
+def delete_employee_position(employee_id: str, position_id: int, responsible_id: str):
     if not is_admin(responsible_id):
         return MySqlResponse("Only admins can delete employee positions", response_code=MySqlResponse.UNAUTHORIZED)
 
@@ -233,18 +233,18 @@ def delete_position(employee_id: str, position_id: int, responsible_id: str):
         # Check if the position exists and belongs to the employee
         query = "SELECT * FROM task_tracking.employee_position WHERE employee_id = %s AND position_id = %s"
         cursor.execute(query, (employee_id, position_id))
-        row = cursor.fetchone()
+        rows = cursor.fetchall()
 
-        if not row:
+        if not rows:
             return MySqlResponse("Position not found or does not belong to the employee",
                                  response_code=MySqlResponse.NOT_FOUND)
 
-        # Delete the position
+        # Delete all matching positions
         query = "DELETE FROM task_tracking.employee_position WHERE employee_id = %s AND position_id = %s"
-        cursor.execute(query, (employee_id, position_id))
+        cursor.executemany(query, [(employee_id, position_id)] * len(rows))
         connection.commit()
 
-        return MySqlResponse("Position deleted successfully", response_code=MySqlResponse.OK)
+        return MySqlResponse("Position(s) deleted successfully", response_code=MySqlResponse.OK)
     except Exception as error:
         return MySqlResponse(f"Error deleting position: {error}", response_code=MySqlResponse.ERROR)
     finally:

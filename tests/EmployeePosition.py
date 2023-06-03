@@ -3,7 +3,7 @@ from datetime import datetime
 from unittest.mock import patch
 
 from model.EmployeePosition import EmployeePosition
-from dao.EmployeePositionDao import create_employee_position
+from dao.EmployeePositionDao import create_employee_position, delete_employee_position
 from model.MySqlResponse import MySqlResponse
 
 
@@ -97,6 +97,15 @@ class EmployeePositionTest(unittest.TestCase):
         with patch("dao.IsEmployeeAdmin.is_admin", return_value=True):
             response = create_employee_position(employee_position_new, responsible_id)
             self.assertEqual(response.response_code, MySqlResponse.ALREADY_EXISTING)
+
+    def test_8_delete_employee_position_success(self):
+        employee_id = "2"
+        position_id = 1
+        responsible_id = "1"
+        with patch("dao.IsEmployeeAdmin.is_admin", return_value=True):
+            response = delete_employee_position(employee_id, position_id, responsible_id)
+        self.assertEqual(response.response_code, MySqlResponse.OK)
+        self.assertEqual(response.response, "Position(s) deleted successfully")
 
 
 if __name__ == '__main__':

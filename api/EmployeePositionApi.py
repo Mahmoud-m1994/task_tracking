@@ -86,5 +86,5 @@ def delete_position():
     position_id = data.get('position_id')
     responsible_id = data.get('responsible_id')
 
-    response = dao.delete_position(employee_id, position_id, responsible_id)
+    response = dao.delete_employee_position(employee_id, position_id, responsible_id)
     return json.dumps(response.__dict__)
