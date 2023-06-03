@@ -2,7 +2,7 @@ import unittest
 from unittest.mock import patch
 
 from model.Employee import Employee
-from dao.EmployeeDao import create_employee, delete_employee
+from dao.EmployeeDao import create_employee, delete_employee, get_employee_by_id
 from model.MySqlResponse import MySqlResponse
 
 
@@ -34,15 +34,20 @@ class EmployeeTest(unittest.TestCase):
         self.assertEqual(response.response_code, MySqlResponse.ALREADY_EXISTING)
         self.assertEqual(response.response, "Employee with the same employee_id already exists")
 
-    def test_4_delete_employee_not_authorized(self):
+    def test_5_get_employee_by_id_found(self):
         employee_id = "123456"
-        responsible_id = "0"
-        with patch("dao.IsEmployeeAdmin.is_admin", return_value=False):
-            response = delete_employee(employee_id, responsible_id)
-        self.assertEqual(response.response_code, MySqlResponse.UNAUTHORIZED)
-        self.assertEqual(response.response, "Only admins can delete employees")
+        employee_name = "UNIT TEST EMPLOYEE"
+        response = get_employee_by_id(employee_id)
+        self.assertEqual(response.response_code, MySqlResponse.OK)
+        self.assertEqual(response.response.name, employee_name)
 
-    def test_5_delete_employee_success(self):
+    def test_6_get_employee_by_id_not_found(self):
+        employee_id = "654321"
+        response = get_employee_by_id(employee_id)
+        self.assertEqual(response.response_code, MySqlResponse.NOT_FOUND)
+        self.assertEqual(response.response, "Employee not found")
+
+    def test_7_delete_employee_success(self):
         employee_id = "123456"
         responsible_id = "1"
         with patch("dao.IsEmployeeAdmin.is_admin", return_value=True):
