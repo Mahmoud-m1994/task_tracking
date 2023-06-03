@@ -33,13 +33,13 @@ class PositionDaoTest(unittest.TestCase):
 
     def test_4_get_position_by_id_found(self):
         position = Position("0203", "UNIT TEST POSITION")
-        response = get_position_by_id_or_name(position)
+        response = get_position_by_id_or_name(position.position_id, position.name)
         self.assertEqual(response.response_code, MySqlResponse.OK)
         self.assertEqual(response.response.name, position.name)
 
     def test_5_get_position_by_id_not_found(self):
         position = Position("9921", "UNIT TEST NOT FOUND")
-        response = get_position_by_id_or_name(position)
+        response = get_position_by_id_or_name(position.position_id, position.name)
         self.assertEqual(response.response_code, MySqlResponse.NOT_FOUND)
         self.assertEqual(response.response, "Position not found")
 

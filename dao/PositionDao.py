@@ -55,13 +55,13 @@ def fetch_positions() -> MySqlResponse:
         disconnect_from_mysql(connection)
 
 
-def get_position_by_id_or_name(position: Position) -> MySqlResponse:
+def get_position_by_id_or_name(position_id: int, name: str) -> MySqlResponse:
     connection = connect_to_mysql()
     cursor = connection.cursor()
 
     try:
-        query = "SELECT * FROM task_tracking.Position WHERE name = %s OR position_id = %s"
-        cursor.execute(query, (position.name, position.position_id))
+        query = "SELECT * FROM task_tracking.Position WHERE position_id = %s or name = %s"
+        cursor.execute(query, (position_id, name))
         row = cursor.fetchone()
 
         if row:
@@ -100,7 +100,7 @@ def update_position(position: Position, responsible_id: str) -> MySqlResponse:
         disconnect_from_mysql(connection)
 
 
-def delete_position(position: Position, responsible_id: str) -> MySqlResponse:
+def delete_position(position_id: int, name: str, responsible_id: str) -> MySqlResponse:
     if not is_admin(responsible_id):
         return MySqlResponse("Only admins can delete positions", response_code=MySqlResponse.UNAUTHORIZED)
 
@@ -108,8 +108,8 @@ def delete_position(position: Position, responsible_id: str) -> MySqlResponse:
     cursor = connection.cursor()
 
     try:
-        query = "DELETE FROM task_tracking.Position WHERE name = %s OR position_id = %s"
-        cursor.execute(query, (position.name, position.position_id))
+        query = "DELETE FROM task_tracking.Position WHERE position_id = %s or name = %s"
+        cursor.execute(query, (position_id, name))
         connection.commit()
 
         if cursor.rowcount > 0:
