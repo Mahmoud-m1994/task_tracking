@@ -4,7 +4,7 @@ from database.DatabaseConnector import disconnect_from_mysql, connect_to_mysql
 from model.EmployeePosition import EmployeePosition
 from model.MySqlResponse import MySqlResponse
 from utilities.DateValidator import (
-    is_start_date_after_end_date,
+    is_start_date_after_end_date_or_equal,
     is_date_in_past,
     is_existing_end_date_after_start_date,
     is_existing_end_date_after_end_date,
@@ -17,7 +17,7 @@ def create_employee_position(employee_position: EmployeePosition, responsible_id
         return MySqlResponse("Only admins can create employee positions", response_code=MySqlResponse.UNAUTHORIZED)
 
     # Check if the start date is after the end date
-    if is_start_date_after_end_date(employee_position.start_date, employee_position.end_date):
+    if is_start_date_after_end_date_or_equal(employee_position.start_date, employee_position.end_date):
         return MySqlResponse("Start-date cannot be after the end-date", response_code=MySqlResponse.BAD_REQUEST)
 
     # Check if the start or end date is in the past

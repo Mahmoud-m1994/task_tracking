@@ -1,7 +1,7 @@
 from datetime import datetime
 
 
-def is_start_date_after_end_date(start_date: datetime, end_date: datetime) -> bool:
+def is_start_date_after_end_date_or_equal(start_date: datetime, end_date: datetime) -> bool:
     return start_date >= end_date
 
 
