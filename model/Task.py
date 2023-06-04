@@ -6,10 +6,10 @@ class Task:
             self,
             task_id: int,
             name: str,
-            description: str,
             date_active: datetime,
-            created_at: datetime,
-            status: str
+            status: str,
+            created_at: datetime = datetime.now(),
+            description: str = None,
     ):
         self.task_id = task_id
         self.name = name
