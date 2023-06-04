@@ -26,3 +26,10 @@ def is_existing_start_date_after_end_date(existing_start_date_str: str, new_end_
     existing_start_date = datetime.strptime(existing_start_date_str, "%Y-%m-%d %H:%M:%S").date()
     new_end_date = datetime.strptime(new_end_date_str, "%Y-%m-%d %H:%M:%S").date()
     return existing_start_date >= new_end_date
+
+
+def is_date_between_start_and_end(date_str: str, start_date_str: str, end_date_str: str) -> bool:
+    date = datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S")
+    start_date = datetime.strptime(start_date_str, "%Y-%m-%d %H:%M:%S")
+    end_date = datetime.strptime(end_date_str, "%Y-%m-%d %H:%M:%S")
+    return start_date <= date < end_date
