@@ -176,7 +176,7 @@ def change_position_status(employee_id: str, employee_positions_id: int, respons
         cursor.execute(active_query, (employee_id,))
         existing_row = cursor.fetchone()
 
-        if existing_row[6] == 1 and is_active == 1:
+        if existing_row and is_active == 1:
             return MySqlResponse("There is already an active position for the employee",
                                  response_code=MySqlResponse.ALREADY_EXISTING)
 
