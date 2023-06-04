@@ -1,12 +1,15 @@
-from dao.Authorization import user_has_active_position
+from datetime import datetime
+
+from dao.Authorization import employee_has_active_position
 from database.DatabaseConnector import disconnect_from_mysql, connect_to_mysql
 from model.MySqlResponse import MySqlResponse
 from model.Task import Task
 
 
 def create_task(task: Task, responsible_id: str) -> MySqlResponse:
-    if not user_has_active_position(responsible_id):
-        return MySqlResponse("Only users with an active position can create tasks", response_code=MySqlResponse.UNAUTHORIZED)
+    if not employee_has_active_position(responsible_id):
+        return MySqlResponse("Only users with an active position can create tasks",
+                             response_code=MySqlResponse.UNAUTHORIZED)
 
     connection = connect_to_mysql()
     cursor = connection.cursor()
@@ -84,8 +87,9 @@ def get_task_by_id(task_id: int) -> MySqlResponse:
 
 
 def update_task(task: Task, responsible_id: str) -> MySqlResponse:
-    if not user_has_active_position(responsible_id):
-        return MySqlResponse("Only users with an active position can update tasks", response_code=MySqlResponse.UNAUTHORIZED)
+    if not employee_has_active_position(responsible_id):
+        return MySqlResponse("Only users with an active position can update tasks",
+                             response_code=MySqlResponse.UNAUTHORIZED)
 
     connection = connect_to_mysql()
     cursor = connection.cursor()
@@ -107,9 +111,48 @@ def update_task(task: Task, responsible_id: str) -> MySqlResponse:
         disconnect_from_mysql(connection)
 
 
+def assign_task(task_id: int, assigned_to_id: str, assigned_by_id: str, assigned_date: datetime = None) -> MySqlResponse:
+    assigned_by_has_active_position = employee_has_active_position(assigned_by_id)
+    assigned_to_has_active_position = employee_has_active_position(assigned_to_id)
+
+    if not assigned_by_has_active_position or not assigned_to_has_active_position:
+        return MySqlResponse("Both assigned_by and assigned_to must have an active position", response_code=MySqlResponse.UNAUTHORIZED)
+
+    connection = connect_to_mysql()
+    cursor = connection.cursor()
+
+    try:
+        query = """
+        SELECT * FROM task_tracking.employee_position
+        WHERE employee_id = %s AND is_active = 1
+        AND start_date <= (SELECT date_active FROM task_tracking.Task WHERE task_id = %s)
+        AND (end_date IS NULL OR end_date >= (SELECT date_active FROM task_tracking.Task WHERE task_id = %s))
+        """
+        cursor.execute(query, (assigned_to_id, task_id, task_id))
+        result = cursor.fetchone()
+
+        if result is None:
+            return MySqlResponse("The active_date for the task is not within the start and end date of the employee's position",
+                                 response_code=MySqlResponse.UNAUTHORIZED)
+
+        position_id = result[2]
+
+        query = "INSERT INTO task_tracking.employee_task (task_id, assigned_to_id, position_id, assigned_by_id, assigned_date) VALUES (%s, %s, %s, %s, %s)"
+        cursor.execute(query, (task_id, assigned_to_id, position_id, assigned_by_id, assigned_date))
+        connection.commit()
+
+        return MySqlResponse("Task assigned successfully", response_code=MySqlResponse.CREATED)
+    except Exception as err:
+        return MySqlResponse(f"Error assigning task: {err}", response_code=MySqlResponse.ERROR)
+    finally:
+        cursor.close()
+        disconnect_from_mysql(connection)
+
+
 def delete_task(task_id: int, responsible_id: str) -> MySqlResponse:
-    if not user_has_active_position(responsible_id):
-        return MySqlResponse("Only users with an active position can delete tasks", response_code=MySqlResponse.UNAUTHORIZED)
+    if not employee_has_active_position(responsible_id):
+        return MySqlResponse("Only users with an active position can delete tasks",
+                             response_code=MySqlResponse.UNAUTHORIZED)
 
     connection = connect_to_mysql()
     cursor = connection.cursor()
