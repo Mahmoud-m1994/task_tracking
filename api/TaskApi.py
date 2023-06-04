@@ -1,4 +1,6 @@
 import json
+from datetime import datetime
+
 from flask import Blueprint, request
 from dao import TaskDao
 from model.Task import Task
@@ -52,6 +54,18 @@ def update_task(task_id):
     responsible_id = data.get("responsible_id")
     task = Task(task_id=task_id, name=name, description=description, date_active=date_active, status=status)
     response = dao.update_task(task, responsible_id)
+    return json.dumps(response.__dict__)
+
+
+@task_api.route("/task/assign", methods=["POST"])
+def assign_task():
+    data = request.get_json()
+    task_id = data.get("task_id")
+    assigned_to_id = data.get("assigned_to_id")
+    assigned_by_id = data.get("assigned_by_id")
+    assigned_date = datetime.now()
+
+    response = dao.assign_task(task_id, assigned_to_id, assigned_by_id, assigned_date)
     return json.dumps(response.__dict__)
 
 
