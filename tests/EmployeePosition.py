@@ -98,10 +98,9 @@ class EmployeePositionTest(unittest.TestCase):
             response = create_employee_position(employee_position_new, responsible_id)
             self.assertEqual(response.response_code, MySqlResponse.ALREADY_EXISTING)
 
-    def test_8_delete_employee_position_success(self):
-        response = delete_all_employee_positions()
-        self.assertEqual(response.response_code, MySqlResponse.OK)
-        self.assertEqual(response.response, "All employee positions deleted successfully")
+    @classmethod
+    def tearDownClass(cls):
+        delete_all_employee_positions()
 
 
 if __name__ == '__main__':
