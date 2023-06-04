@@ -144,8 +144,8 @@ class EmployeeTaskDaoTest(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        delete_all_employee_positions()
         dao.delete_all_employee_tasks()
+        delete_all_employee_positions()
 
 
 if __name__ == '__main__':

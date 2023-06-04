@@ -18,6 +18,10 @@ class EmployeePositionTest(unittest.TestCase):
         1
     )
 
+    @classmethod
+    def setUpClass(cls):
+        delete_all_employee_positions()
+
     def test_1_create_employee_position_success(self):
         responsible_id = "1"
         with patch("dao.Authorization.is_admin", return_value=True):
