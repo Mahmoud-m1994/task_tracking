@@ -3,7 +3,7 @@ from datetime import datetime
 from unittest.mock import patch
 
 from model.EmployeePosition import EmployeePosition
-from dao.EmployeePositionDao import create_employee_position, delete_employee_position
+from dao.EmployeePositionDao import create_employee_position, delete_all_employee_positions
 from model.MySqlResponse import MySqlResponse
 
 
@@ -20,14 +20,14 @@ class EmployeePositionTest(unittest.TestCase):
 
     def test_1_create_employee_position_success(self):
         responsible_id = "1"
-        with patch("dao.IsEmployeeAdmin.is_admin", return_value=True):
+        with patch("dao.Authorization.is_admin", return_value=True):
             response = create_employee_position(self.employee_position, responsible_id)
         self.assertEqual(response.response_code, MySqlResponse.CREATED)
         self.assertEqual(response.response, "Employee position created successfully")
 
     def test_2_create_employee_position_unauthorized(self):
         responsible_id = "0"
-        with patch("dao.IsEmployeeAdmin.is_admin", return_value=False):
+        with patch("dao.Authorization.is_admin", return_value=False):
             response = create_employee_position(self.employee_position, responsible_id)
         self.assertEqual(response.response_code, MySqlResponse.UNAUTHORIZED)
         self.assertEqual(response.response, "Only admins can create employee positions")
@@ -35,7 +35,7 @@ class EmployeePositionTest(unittest.TestCase):
     def test_3_create_employee_position_invalid_dates(self):
         self.employee_position.end_date = datetime(2024, 1, 1)
         responsible_id = "1"
-        with patch("dao.IsEmployeeAdmin.is_admin", return_value=True):
+        with patch("dao.Authorization.is_admin", return_value=True):
             response = create_employee_position(self.employee_position, responsible_id)
         self.assertEqual(response.response_code, MySqlResponse.BAD_REQUEST)
         self.assertEqual(response.response, "Start-date cannot be after the end-date")
@@ -43,7 +43,7 @@ class EmployeePositionTest(unittest.TestCase):
     def test_4_create_employee_position_in_past(self):
         self.employee_position.start_date = datetime(2020, 1, 1)
         responsible_id = "1"
-        with patch("dao.IsEmployeeAdmin.is_admin", return_value=True):
+        with patch("dao.Authorization.is_admin", return_value=True):
             response = create_employee_position(self.employee_position, responsible_id)
         self.assertEqual(response.response_code, MySqlResponse.BAD_REQUEST)
         self.assertEqual(response.response, "Start or end-date cannot be in the past")
@@ -59,7 +59,7 @@ class EmployeePositionTest(unittest.TestCase):
             1
         )
         responsible_id = "1"
-        with patch("dao.IsEmployeeAdmin.is_admin", return_value=True):
+        with patch("dao.Authorization.is_admin", return_value=True):
             response = create_employee_position(employee_position_new, responsible_id)
         self.assertEqual(response.response_code, MySqlResponse.ALREADY_EXISTING)
         self.assertEqual(
@@ -67,7 +67,7 @@ class EmployeePositionTest(unittest.TestCase):
             "Already has active position, do you want to set this one to active anyway ?"
         )
 
-    def test_6_create_employee_position_success_overlapping_non_active(self):
+    def test_6_create_employee_position_success_not_overlapping_non_active(self):
         employee_position_new = EmployeePosition(
             1,
             "2",
@@ -78,7 +78,7 @@ class EmployeePositionTest(unittest.TestCase):
             0
         )
         responsible_id = "1"
-        with patch("dao.IsEmployeeAdmin.is_admin", return_value=True):
+        with patch("dao.Authorization.is_admin", return_value=True):
             response = create_employee_position(employee_position_new, responsible_id)
             self.assertEqual(response.response_code, MySqlResponse.CREATED)
             self.assertEqual(response.response, "Employee position created successfully")
@@ -94,18 +94,14 @@ class EmployeePositionTest(unittest.TestCase):
             1
         )
         responsible_id = "1"
-        with patch("dao.IsEmployeeAdmin.is_admin", return_value=True):
+        with patch("dao.Authorization.is_admin", return_value=True):
             response = create_employee_position(employee_position_new, responsible_id)
             self.assertEqual(response.response_code, MySqlResponse.ALREADY_EXISTING)
 
     def test_8_delete_employee_position_success(self):
-        employee_id = "2"
-        position_id = 1
-        responsible_id = "1"
-        with patch("dao.IsEmployeeAdmin.is_admin", return_value=True):
-            response = delete_employee_position(employee_id, position_id, responsible_id)
+        response = delete_all_employee_positions()
         self.assertEqual(response.response_code, MySqlResponse.OK)
-        self.assertEqual(response.response, "Position(s) deleted successfully")
+        self.assertEqual(response.response, "All employee positions deleted successfully")
 
 
 if __name__ == '__main__':

@@ -151,7 +151,8 @@ def get_active_position(employee_id: str) -> MySqlResponse:
 from datetime import datetime
 
 
-def change_position_status(employee_id: str, employee_positions_id: int, responsible_id: str, is_active: int) -> MySqlResponse:
+def change_position_status(employee_id: str, employee_positions_id: int, responsible_id: str,
+                           is_active: int) -> MySqlResponse:
     if not is_admin(responsible_id):
         return MySqlResponse("Only admins can create employee positions", response_code=MySqlResponse.UNAUTHORIZED)
 
@@ -231,7 +232,7 @@ def change_position_dates(
         disconnect_from_mysql(connection)
 
 
-def delete_employee_position(employee_id: str, position_id: int, responsible_id: str):
+def delete_employee_position(employee_id: str, employee_position_id: int, responsible_id: str):
     if not is_admin(responsible_id):
         return MySqlResponse("Only admins can delete employee positions", response_code=MySqlResponse.UNAUTHORIZED)
 
@@ -241,7 +242,7 @@ def delete_employee_position(employee_id: str, position_id: int, responsible_id:
     try:
         # Check if the position exists and belongs to the employee
         query = "SELECT * FROM task_tracking.employee_position WHERE employee_id = %s AND id = %s"
-        cursor.execute(query, (employee_id, position_id))
+        cursor.execute(query, (employee_id, employee_position_id))
         row = cursor.fetchone()
 
         if not row:
@@ -250,7 +251,7 @@ def delete_employee_position(employee_id: str, position_id: int, responsible_id:
 
         # Delete the position
         query = "DELETE FROM task_tracking.employee_position WHERE employee_id = %s AND id = %s"
-        cursor.execute(query, (employee_id, position_id))
+        cursor.execute(query, (employee_id, employee_position_id))
         connection.commit()
 
         return MySqlResponse("Position deleted successfully", response_code=MySqlResponse.OK)
@@ -260,3 +261,23 @@ def delete_employee_position(employee_id: str, position_id: int, responsible_id:
         cursor.close()
         disconnect_from_mysql(connection)
 
+
+def delete_all_employee_positions():
+    connection = connect_to_mysql()
+    cursor = connection.cursor()
+
+    try:
+        # Delete all positions where id > 0
+        query = "DELETE FROM task_tracking.employee_position WHERE id > 0"
+        cursor.execute(query)
+        connection.commit()
+
+        return MySqlResponse("All employee positions deleted successfully", response_code=MySqlResponse.OK)
+    except Exception as error:
+        return MySqlResponse(f"Error deleting employee positions: {error}", response_code=MySqlResponse.ERROR)
+    finally:
+        cursor.close()
+        disconnect_from_mysql(connection)
+
+
+delete_all_employee_positions.__unittest_skip__ = True
