@@ -8,7 +8,6 @@ from model.MySqlResponse import MySqlResponse
 
 class EmployeeTest(unittest.TestCase):
     def test_1_create_employee_success(self):
-        print(1)
         employee = Employee("123456", "UNIT TEST EMPLOYEE")
         responsible_id = "1"
         with patch("dao.Authorization.is_admin", return_value=True):
@@ -17,7 +16,6 @@ class EmployeeTest(unittest.TestCase):
         self.assertEqual(response.response, "Employee created successfully")
 
     def test_2_create_employee_unauthorized(self):
-        print(2)
         employee = Employee("123456", "UNIT TEST EMPLOYEE")
         responsible_id = "0"
         with patch("dao.Authorization.is_admin", return_value=False):
@@ -26,7 +24,6 @@ class EmployeeTest(unittest.TestCase):
         self.assertEqual(response.response, "Only admins can create employees")
 
     def test_3_create_employee_already_existing(self):
-        print(3)
         employee = Employee("123456", "UNIT TEST EMPLOYEE")
         responsible_id = "1"
         with patch("dao.Authorization.is_admin", return_value=True):

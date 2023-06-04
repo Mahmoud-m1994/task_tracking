@@ -35,8 +35,6 @@ def create_employee_position(employee_position: EmployeePosition, responsible_id
         row = cursor.fetchone()
 
         if row:
-            print('meh')
-            print(str(row[0]))
             if employee_position.is_active == 1:
                 return MySqlResponse("Already has active position, do you want to set this one to active anyway ?",
                                      response_code=MySqlResponse.ALREADY_EXISTING)

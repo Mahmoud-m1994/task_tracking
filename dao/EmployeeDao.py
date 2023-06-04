@@ -41,7 +41,6 @@ def fetch_employees() -> MySqlResponse:
 
         employees = []
         for row in rows:
-            print('row ' + str(row))
             employee_id = row[0]
             name = row[1]
             is_employee_admin = row[2]

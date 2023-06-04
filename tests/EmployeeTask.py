@@ -15,6 +15,8 @@ dao = TaskDao
 class EmployeeTaskDaoTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
+        dao.delete_all_employee_tasks()
+        delete_all_employee_positions()
         employee_position = EmployeePosition(
             1,
             "2",

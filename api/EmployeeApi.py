@@ -26,7 +26,6 @@ def create_employee():
 
 @employee_api.route("/employees", methods=["GET"])
 def get_employees():
-    print('hello')
     response = dao.fetch_employees()
     if response.response_code == MySqlResponse.OK:
         employees = response.response
@@ -34,7 +33,6 @@ def get_employees():
             "response": [employee.__dict__ for employee in employees],
             "response_code": response.response_code
         }
-        print(str(json.dumps(response_data)))
         return json.dumps(response_data)
     else:
         return json.dumps(response.__dict__)

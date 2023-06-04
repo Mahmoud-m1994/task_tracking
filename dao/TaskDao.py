@@ -193,7 +193,6 @@ def unassigned_task(task_id: int, unassigned_from: str, unassigned_by: str) -> M
         connection.commit()
 
         if cursor.rowcount > 0:
-            print("unassigned_task  2")
             return MySqlResponse("Task unassigned successfully", response_code=MySqlResponse.OK)
         else:
             return MySqlResponse("Task assignment failed. Task not found or assignment conditions not met",
