@@ -1,4 +1,3 @@
-from datetime import datetime
 from dao.IsEmployeeAdmin import is_admin
 from database.DatabaseConnector import disconnect_from_mysql, connect_to_mysql
 from model.EmployeePosition import EmployeePosition
@@ -93,8 +92,8 @@ def get_positions_for_employee(employee_id: str) -> MySqlResponse:
         positions = []
         for row in rows:
             id = row[0]
-            position_id = row[1]
-            employee_id = row[2]
+            employee_id = row[1]
+            position_id = row[2]
             start_date = row[3]
             end_date = row[4]
             created_at = row[5]
@@ -130,8 +129,8 @@ def get_active_position(employee_id: str) -> MySqlResponse:
 
         if row:
             id = row[0]
-            position_id = row[1]
-            employee_id = row[2]
+            employee_id = row[1]
+            position_id = row[2]
             start_date = row[3]
             end_date = row[4]
             created_at = row[5]
@@ -149,7 +148,10 @@ def get_active_position(employee_id: str) -> MySqlResponse:
         disconnect_from_mysql(connection)
 
 
-def change_position_status(employee_id: str, position_id: int, responsible_id: str, is_active: int) -> MySqlResponse:
+from datetime import datetime
+
+
+def change_position_status(employee_id: str, employee_positions_id: int, responsible_id: str, is_active: int) -> MySqlResponse:
     if not is_admin(responsible_id):
         return MySqlResponse("Only admins can create employee positions", response_code=MySqlResponse.UNAUTHORIZED)
 
@@ -157,23 +159,30 @@ def change_position_status(employee_id: str, position_id: int, responsible_id: s
     cursor = connection.cursor()
 
     try:
-        # Check if the position exists and belongs to the employee
-        query = "SELECT * FROM task_tracking.employee_position WHERE employee_id = %s AND position_id = %s"
-        cursor.execute(query, (employee_id, position_id))
-        row = cursor.fetchone()
+        query = "SELECT * FROM task_tracking.employee_position WHERE employee_id = %s AND id = %s"
+        cursor.execute(query, (employee_id, employee_positions_id))
+        row_to_be_updated = cursor.fetchone()
 
-        if not row:
+        if not row_to_be_updated:
             return MySqlResponse("Position not found or does not belong to the employee",
                                  response_code=MySqlResponse.NOT_FOUND)
 
         if is_active == 0:
             end_date = datetime.now()
         else:
-            end_date = row[3]
+            end_date = row_to_be_updated[4]
 
-        query = "UPDATE task_tracking.employee_position SET is_active = %s, end_date = %s " \
-                "WHERE employee_id = %s AND position_id = %s"
-        cursor.execute(query, (is_active, end_date, employee_id, position_id))
+        active_query = "SELECT * FROM task_tracking.employee_position WHERE employee_id = %s AND is_active = 1"
+        cursor.execute(active_query, (employee_id,))
+        existing_row = cursor.fetchone()
+
+        if existing_row[6] == 1 and is_active == 1:
+            return MySqlResponse("There is already an active position for the employee",
+                                 response_code=MySqlResponse.ALREADY_EXISTING)
+
+        update_query = "UPDATE task_tracking.employee_position SET is_active = %s, end_date = %s " \
+                       "WHERE employee_id = %s AND id = %s"
+        cursor.execute(update_query, (is_active, end_date, employee_id, employee_positions_id))
         connection.commit()
 
         return MySqlResponse("Position status updated successfully", response_code=MySqlResponse.OK)

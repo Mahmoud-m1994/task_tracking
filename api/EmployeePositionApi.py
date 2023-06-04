@@ -50,20 +50,20 @@ def get_positions_by_employee_id(employee_id):
 
 
 @employee_position_api.route('/employee_position/active/<employee_id>', methods=['GET'])
-def get_active_position(employee_id: str) -> str:
+def get_active_position(employee_id: str):
     response = dao.get_active_position(employee_id)
-    return json.dumps(response.__dict__)
+    return json.dumps(response.__dict__, cls=JsonWithDateEncoder)
 
 
 @employee_position_api.route('/employee_position/status', methods=['PUT'])
 def change_position_status():
     data = request.get_json()
     employee_id = data.get('employee_id')
-    position_id = data.get('position_id')
+    employee_position_id = data.get('employee_position_id')
     responsible_id = data.get('responsible_id')
     is_active = data.get('is_active')
 
-    response = dao.change_position_status(employee_id, position_id, responsible_id, is_active)
+    response = dao.change_position_status(employee_id, employee_position_id, responsible_id, is_active)
     return json.dumps(response.__dict__)
 
 
