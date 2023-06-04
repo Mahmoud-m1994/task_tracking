@@ -11,7 +11,7 @@ class EmployeeTest(unittest.TestCase):
         print(1)
         employee = Employee("123456", "UNIT TEST EMPLOYEE")
         responsible_id = "1"
-        with patch("dao.IsEmployeeAdmin.is_admin", return_value=True):
+        with patch("dao.Authorization.is_admin", return_value=True):
             response = create_employee(employee, responsible_id)
         self.assertEqual(response.response_code, MySqlResponse.CREATED)
         self.assertEqual(response.response, "Employee created successfully")
@@ -20,7 +20,7 @@ class EmployeeTest(unittest.TestCase):
         print(2)
         employee = Employee("123456", "UNIT TEST EMPLOYEE")
         responsible_id = "0"
-        with patch("dao.IsEmployeeAdmin.is_admin", return_value=False):
+        with patch("dao.Authorization.is_admin", return_value=False):
             response = create_employee(employee, responsible_id)
         self.assertEqual(response.response_code, MySqlResponse.UNAUTHORIZED)
         self.assertEqual(response.response, "Only admins can create employees")
@@ -29,7 +29,7 @@ class EmployeeTest(unittest.TestCase):
         print(3)
         employee = Employee("123456", "UNIT TEST EMPLOYEE")
         responsible_id = "1"
-        with patch("dao.IsEmployeeAdmin.is_admin", return_value=True):
+        with patch("dao.Authorization.is_admin", return_value=True):
             response = create_employee(employee, responsible_id)
         self.assertEqual(response.response_code, MySqlResponse.ALREADY_EXISTING)
         self.assertEqual(response.response, "Employee with the same employee_id already exists")
@@ -50,7 +50,7 @@ class EmployeeTest(unittest.TestCase):
     def test_7_delete_employee_success(self):
         employee_id = "123456"
         responsible_id = "1"
-        with patch("dao.IsEmployeeAdmin.is_admin", return_value=True):
+        with patch("dao.Authorization.is_admin", return_value=True):
             response = delete_employee(employee_id, responsible_id)
         self.assertEqual(response.response_code, MySqlResponse.OK)
         self.assertEqual(response.response, "Employee deleted successfully")
