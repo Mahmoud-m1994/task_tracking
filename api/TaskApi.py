@@ -38,6 +38,34 @@ def get_tasks():
         return json.dumps(response.__dict__, cls=JsonWithDateEncoder)
 
 
+@task_api.route("/task/task_id/<int:task_id>", methods=["GET"])
+def get_employee_tasks_by_task_id(task_id):
+    response = dao.fetch_employee_tasks(task_id)
+    if response.response_code == MySqlResponse.OK:
+        employee_tasks = response.response
+        response_data = {
+            "response": [employee_task.__dict__ for employee_task in employee_tasks],
+            "response_code": response.response_code
+        }
+        return json.dumps(response_data, cls=JsonWithDateEncoder)
+    else:
+        return json.dumps(response.__dict__, cls=JsonWithDateEncoder)
+
+
+@task_api.route("/task/assigned_to/<string:assigned_to_id>", methods=["GET"])
+def get_employee_tasks_by_assigned_to_id(assigned_to_id):
+    response = dao.fetch_employee_tasks_by_assigned_to_id(assigned_to_id)
+    if response.response_code == MySqlResponse.OK:
+        employee_tasks = response.response
+        response_data = {
+            "response": [employee_task.__dict__ for employee_task in employee_tasks],
+            "response_code": response.response_code
+        }
+        return json.dumps(response_data, cls=JsonWithDateEncoder)
+    else:
+        return json.dumps(response.__dict__, cls=JsonWithDateEncoder)
+
+
 @task_api.route("/task/<int:task_id>", methods=["GET"])
 def get_task_by_id(task_id):
     response = dao.get_task_by_id(task_id)

@@ -2,6 +2,7 @@ from datetime import datetime
 
 from dao.Authorization import employee_has_active_position
 from database.DatabaseConnector import disconnect_from_mysql, connect_to_mysql
+from model.EmployeeTask import EmployeeTask
 from model.MySqlResponse import MySqlResponse
 from model.Task import Task
 
@@ -61,6 +62,80 @@ def fetch_tasks() -> MySqlResponse:
     except Exception as err:
         print(f"Error retrieving tasks: {err}")
         return MySqlResponse("Error retrieving tasks", response_code=MySqlResponse.ERROR)
+    finally:
+        cursor.close()
+        disconnect_from_mysql(connection)
+
+
+def fetch_employee_tasks(task_id: int) -> MySqlResponse:
+    connection = connect_to_mysql()
+    cursor = connection.cursor()
+
+    try:
+        query = "SELECT * FROM employee_task WHERE task_id = %s"
+        cursor.execute(query, (task_id,))
+        rows = cursor.fetchall()
+
+        employee_tasks = []
+        for row in rows:
+            task_id = row[0]
+            assigned_to_id = row[1]
+            position_id = row[2]
+            assigned_by_id = row[3]
+            assigned_date = row[4]
+            employee_task = EmployeeTask(
+                task_id=task_id,
+                assigned_to_id=assigned_to_id,
+                position_id=position_id,
+                assigned_by_id=assigned_by_id,
+                assigned_date=assigned_date
+            )
+            employee_tasks.append(employee_task)
+
+        if len(employee_tasks) == 0:
+            return MySqlResponse("No employee tasks found", response_code=MySqlResponse.NOT_FOUND)
+
+        return MySqlResponse(employee_tasks, response_code=MySqlResponse.OK)
+    except Exception as error:
+        print(f"Error retrieving employee tasks: {error}")
+        return MySqlResponse("Error retrieving employee tasks", response_code=MySqlResponse.ERROR)
+    finally:
+        cursor.close()
+        disconnect_from_mysql(connection)
+
+
+def fetch_employee_tasks_by_assigned_to_id(assigned_to_id: str) -> MySqlResponse:
+    connection = connect_to_mysql()
+    cursor = connection.cursor()
+
+    try:
+        query = "SELECT * FROM employee_task WHERE assigned_to_id = %s"
+        cursor.execute(query, (assigned_to_id,))
+        rows = cursor.fetchall()
+
+        employee_tasks = []
+        for row in rows:
+            task_id = row[0]
+            assigned_to_id = row[1]
+            position_id = row[2]
+            assigned_by_id = row[3]
+            assigned_date = row[4]
+            employee_task = EmployeeTask(
+                task_id=task_id,
+                assigned_to_id=assigned_to_id,
+                position_id=position_id,
+                assigned_by_id=assigned_by_id,
+                assigned_date=assigned_date
+            )
+            employee_tasks.append(employee_task)
+
+        if len(employee_tasks) == 0:
+            return MySqlResponse("No employee tasks found", response_code=MySqlResponse.NOT_FOUND)
+
+        return MySqlResponse(employee_tasks, response_code=MySqlResponse.OK)
+    except Exception as error:
+        print(f"Error retrieving employee tasks by assigned_to_id: {error}")
+        return MySqlResponse("Error retrieving employee tasks", response_code=MySqlResponse.ERROR)
     finally:
         cursor.close()
         disconnect_from_mysql(connection)
