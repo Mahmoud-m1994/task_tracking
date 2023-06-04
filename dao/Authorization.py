@@ -23,7 +23,7 @@ def is_admin(responsible_id: str) -> bool:
         disconnect_from_mysql(connection)
 
 
-def user_has_active_position(employee_id: str) -> bool:
+def employee_has_active_position(employee_id: str) -> bool:
     connection = connect_to_mysql()
     cursor = connection.cursor()
 
