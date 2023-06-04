@@ -80,12 +80,11 @@ def change_position_dates():
     return json.dumps(response.__dict__)
 
 
-@employee_position_api.route('/employee_position', methods=['DELETE'])
-def delete_position():
+@employee_position_api.route('/employee_position/<int:employee_position_id>', methods=['DELETE'])
+def delete_position(employee_position_id):
     data = request.get_json()
     employee_id = data.get('employee_id')
-    position_id = data.get('position_id')
     responsible_id = data.get('responsible_id')
 
-    response = dao.delete_employee_position(employee_id, position_id, responsible_id)
+    response = dao.delete_employee_position(employee_id, employee_position_id, responsible_id)
     return json.dumps(response.__dict__)

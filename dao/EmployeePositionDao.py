@@ -240,22 +240,23 @@ def delete_employee_position(employee_id: str, position_id: int, responsible_id:
 
     try:
         # Check if the position exists and belongs to the employee
-        query = "SELECT * FROM task_tracking.employee_position WHERE employee_id = %s AND position_id = %s"
+        query = "SELECT * FROM task_tracking.employee_position WHERE employee_id = %s AND id = %s"
         cursor.execute(query, (employee_id, position_id))
-        rows = cursor.fetchall()
+        row = cursor.fetchone()
 
-        if not rows:
+        if not row:
             return MySqlResponse("Position not found or does not belong to the employee",
                                  response_code=MySqlResponse.NOT_FOUND)
 
-        # Delete all matching positions
-        query = "DELETE FROM task_tracking.employee_position WHERE employee_id = %s AND position_id = %s"
-        cursor.executemany(query, [(employee_id, position_id)] * len(rows))
+        # Delete the position
+        query = "DELETE FROM task_tracking.employee_position WHERE employee_id = %s AND id = %s"
+        cursor.execute(query, (employee_id, position_id))
         connection.commit()
 
-        return MySqlResponse("Position(s) deleted successfully", response_code=MySqlResponse.OK)
+        return MySqlResponse("Position deleted successfully", response_code=MySqlResponse.OK)
     except Exception as error:
         return MySqlResponse(f"Error deleting position: {error}", response_code=MySqlResponse.ERROR)
     finally:
         cursor.close()
         disconnect_from_mysql(connection)
+
