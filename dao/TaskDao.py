@@ -44,7 +44,14 @@ def fetch_tasks() -> MySqlResponse:
             date_active = row[3]
             created_at = row[4]
             status = row[5]
-            task = Task(task_id, name, description, date_active, created_at, status)
+            task = Task(
+                task_id=task_id,
+                name=name,
+                description=description,
+                date_active=date_active,
+                created_at=created_at,
+                status=status
+            )
             tasks.append(task)
 
         if len(tasks) == 0:
