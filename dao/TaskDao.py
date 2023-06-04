@@ -86,7 +86,7 @@ def get_task_by_id(task_id: int) -> MySqlResponse:
                 task_id=task_id,
                 name=name,
                 description=description,
-                date_active= date_active,
+                date_active=date_active,
                 created_at=created_at,
                 status=status
             )
@@ -125,12 +125,14 @@ def update_task(task: Task, responsible_id: str) -> MySqlResponse:
         disconnect_from_mysql(connection)
 
 
-def assign_task(task_id: int, assigned_to_id: str, assigned_by_id: str, assigned_date: datetime = None) -> MySqlResponse:
+def assign_task(task_id: int, assigned_to_id: str, assigned_by_id: str,
+                assigned_date: datetime = None) -> MySqlResponse:
     assigned_by_has_active_position = employee_has_active_position(assigned_by_id)
     assigned_to_has_active_position = employee_has_active_position(assigned_to_id)
 
     if not assigned_by_has_active_position or not assigned_to_has_active_position:
-        return MySqlResponse("Both assigned_by and assigned_to must have an active position", response_code=MySqlResponse.UNAUTHORIZED)
+        return MySqlResponse("Both assigned_by and assigned_to must have an active position",
+                             response_code=MySqlResponse.UNAUTHORIZED)
 
     connection = connect_to_mysql()
     cursor = connection.cursor()
@@ -146,8 +148,9 @@ def assign_task(task_id: int, assigned_to_id: str, assigned_by_id: str, assigned
         result = cursor.fetchone()
 
         if result is None:
-            return MySqlResponse("The active_date for the task is not within the start and end date of the employee's position",
-                                 response_code=MySqlResponse.UNAUTHORIZED)
+            return MySqlResponse(
+                "The active_date for the task is not within the start and end date of the employee's position",
+                response_code=MySqlResponse.UNAUTHORIZED)
 
         position_id = result[2]
 
@@ -165,7 +168,8 @@ def assign_task(task_id: int, assigned_to_id: str, assigned_by_id: str, assigned
 
 def unassigned_task(task_id: int, unassigned_from: str, unassigned_by: str) -> MySqlResponse:
     if not employee_has_active_position(unassigned_by):
-        return MySqlResponse("Unassigned requires an active position for unassigned_by", response_code=MySqlResponse.UNAUTHORIZED)
+        return MySqlResponse("Unassigned requires an active position for unassigned_by",
+                             response_code=MySqlResponse.UNAUTHORIZED)
 
     connection = connect_to_mysql()
     cursor = connection.cursor()
@@ -181,7 +185,8 @@ def unassigned_task(task_id: int, unassigned_from: str, unassigned_by: str) -> M
         if cursor.rowcount > 0:
             return MySqlResponse("Task unassigned successfully", response_code=MySqlResponse.OK)
         else:
-            return MySqlResponse("Task assignment failed. Task not found or assignment conditions not met", response_code=MySqlResponse.NOT_FOUND)
+            return MySqlResponse("Task assignment failed. Task not found or assignment conditions not met",
+                                 response_code=MySqlResponse.NOT_FOUND)
     except Exception as err:
         return MySqlResponse(f"Error unassigned task: {err}", response_code=MySqlResponse.ERROR)
     finally:
@@ -212,3 +217,24 @@ def delete_task(task_id: int, responsible_id: str) -> MySqlResponse:
     finally:
         cursor.close()
         disconnect_from_mysql(connection)
+
+
+def delete_all_employee_tasks():
+    connection = connect_to_mysql()
+    cursor = connection.cursor()
+
+    try:
+        # Delete all employee tasks where task_id > 0
+        query = "DELETE FROM task_tracking.employee_task WHERE task_id > 0"
+        cursor.execute(query)
+        connection.commit()
+
+        return MySqlResponse("All employee tasks deleted successfully", response_code=MySqlResponse.OK)
+    except Exception as error:
+        return MySqlResponse(f"Error deleting employee tasks: {error}", response_code=MySqlResponse.ERROR)
+    finally:
+        cursor.close()
+        disconnect_from_mysql(connection)
+
+
+delete_all_employee_tasks.__unittest_skip__ = True
