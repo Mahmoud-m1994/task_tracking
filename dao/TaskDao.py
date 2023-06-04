@@ -149,6 +149,32 @@ def assign_task(task_id: int, assigned_to_id: str, assigned_by_id: str, assigned
         disconnect_from_mysql(connection)
 
 
+def unassigned_task(task_id: int, unassigned_from: str, unassigned_by: str) -> MySqlResponse:
+    if not employee_has_active_position(unassigned_by):
+        return MySqlResponse("Unassigned requires an active position for unassigned_by", response_code=MySqlResponse.UNAUTHORIZED)
+
+    connection = connect_to_mysql()
+    cursor = connection.cursor()
+
+    try:
+        query = """
+        DELETE FROM task_tracking.employee_task
+        WHERE task_id = %s AND assigned_to_id = %s AND assigned_by_id = %s
+        """
+        cursor.execute(query, (task_id, unassigned_from, unassigned_by))
+        connection.commit()
+
+        if cursor.rowcount > 0:
+            return MySqlResponse("Task unassigned successfully", response_code=MySqlResponse.OK)
+        else:
+            return MySqlResponse("Task unassignment failed. Task not found or unassignment conditions not met", response_code=MySqlResponse.NOT_FOUND)
+    except Exception as err:
+        return MySqlResponse(f"Error unassigning task: {err}", response_code=MySqlResponse.ERROR)
+    finally:
+        cursor.close()
+        disconnect_from_mysql(connection)
+
+
 def delete_task(task_id: int, responsible_id: str) -> MySqlResponse:
     if not employee_has_active_position(responsible_id):
         return MySqlResponse("Only users with an active position can delete tasks",
