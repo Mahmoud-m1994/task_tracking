@@ -47,7 +47,7 @@ class PositionDaoTest(unittest.TestCase):
         position = Position("0203", "UNIT TEST POSITION")
         responsible_id = "0"
         with patch("dao.Authorization.is_admin", return_value=False):
-            response = delete_position(position, responsible_id)
+            response = delete_position(position.position_id, "name", responsible_id)
         self.assertEqual(response.response_code, MySqlResponse.UNAUTHORIZED)
         self.assertEqual(response.response, "Only admins can delete positions")
 
@@ -55,7 +55,7 @@ class PositionDaoTest(unittest.TestCase):
         position = Position("0203", "UNIT TEST POSITION")
         responsible_id = "1"
         with patch("dao.Authorization.is_admin", return_value=True):
-            response = delete_position(position, responsible_id)
+            response = delete_position(position.position_id, position.name, responsible_id)
         self.assertEqual(response.response_code, MySqlResponse.OK)
         self.assertEqual(response.response, "Position deleted successfully")
 
