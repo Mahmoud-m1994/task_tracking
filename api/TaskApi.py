@@ -79,6 +79,7 @@ def unassigned_task():
     response = dao.unassigned_task(task_id, unassigned_from, unassigned_by)
     return json.dumps(response.__dict__)
 
+
 @task_api.route("/task/<int:task_id>", methods=["DELETE"])
 def delete_task(task_id):
     data = request.get_json()

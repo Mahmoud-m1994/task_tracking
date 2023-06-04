@@ -75,7 +75,14 @@ def get_task_by_id(task_id: int) -> MySqlResponse:
             date_active = row[3]
             created_at = row[4]
             status = row[5]
-            task = Task(task_id, name, description, date_active, created_at, status)
+            task = Task(
+                task_id=task_id,
+                name=name,
+                description=description,
+                date_active= date_active,
+                created_at=created_at,
+                status=status
+            )
             return MySqlResponse(response=task, response_code=MySqlResponse.OK)
         else:
             return MySqlResponse(response="Task not found", response_code=MySqlResponse.NOT_FOUND)
@@ -167,9 +174,9 @@ def unassigned_task(task_id: int, unassigned_from: str, unassigned_by: str) -> M
         if cursor.rowcount > 0:
             return MySqlResponse("Task unassigned successfully", response_code=MySqlResponse.OK)
         else:
-            return MySqlResponse("Task unassignment failed. Task not found or unassignment conditions not met", response_code=MySqlResponse.NOT_FOUND)
+            return MySqlResponse("Task assignment failed. Task not found or assignment conditions not met", response_code=MySqlResponse.NOT_FOUND)
     except Exception as err:
-        return MySqlResponse(f"Error unassigning task: {err}", response_code=MySqlResponse.ERROR)
+        return MySqlResponse(f"Error unassigned task: {err}", response_code=MySqlResponse.ERROR)
     finally:
         cursor.close()
         disconnect_from_mysql(connection)
