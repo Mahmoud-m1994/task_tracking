@@ -28,14 +28,14 @@ def create_employee_position(employee_position: EmployeePosition, responsible_id
 
     try:
         # Check if the targeted employee has any active position
-        query = "SELECT end_date FROM task_tracking.employee_position " \
-                "WHERE employee_id = %s AND is_active = 1 " \
+        query = "SELECT end_date,is_active FROM task_tracking.employee_position " \
+                "WHERE employee_id = %s" \
                 "ORDER BY created_at DESC LIMIT 1"
         cursor.execute(query, (employee_position.employee_id,))
         row = cursor.fetchone()
 
         if row:
-            if employee_position.is_active == 1:
+            if employee_position.is_active == 1 and row[1] == 1:
                 return MySqlResponse("Already has active position, do you want to set this one to active anyway ?",
                                      response_code=MySqlResponse.ALREADY_EXISTING)
             existing_end_date = row[0]
