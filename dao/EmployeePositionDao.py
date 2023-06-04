@@ -1,4 +1,4 @@
-from dao.IsEmployeeAdmin import is_admin
+from dao.Authorization import is_admin
 from database.DatabaseConnector import disconnect_from_mysql, connect_to_mysql
 from model.EmployeePosition import EmployeePosition
 from model.MySqlResponse import MySqlResponse

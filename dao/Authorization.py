@@ -21,3 +21,24 @@ def is_admin(responsible_id: str) -> bool:
     finally:
         cursor.close()
         disconnect_from_mysql(connection)
+
+
+def user_has_active_position(employee_id: str) -> bool:
+    connection = connect_to_mysql()
+    cursor = connection.cursor()
+
+    try:
+        query = "SELECT COUNT(*) FROM task_tracking.employee_position WHERE employee_id = %s AND is_active = 1"
+        cursor.execute(query, (employee_id,))
+        result = cursor.fetchone()
+
+        if result and result[0] > 0:
+            return True
+        else:
+            return False
+    except Exception as error:
+        print(f"Error checking user active position: {error}")
+        return False
+    finally:
+        cursor.close()
+        disconnect_from_mysql(connection)
