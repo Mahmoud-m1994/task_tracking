@@ -62,3 +62,13 @@ To handle all possible cases (that came to my mind), I end up with avoiding foll
    8. Last two points are very edge case's, but I included anyway
 4. If the code came so far then I try to insert the data, catch Exception without specifying to catch and log all of them
 5. Finally, I close database connection
+
+## Testing
+
+To test the system i did following:
+
+1. I test the logical functions for example (DateValidator and UuidGenerator) separately.
+2. Tested all dao classes because they contain all logic and they are the main part in my system.
+   3. For dao testing i tested both functions one by one, and the data flow (Several functions) to see how they behave together
+   4. I mocked the tests and data for only TaskEmployee because of time, and because assigning task include every thing in the system
+3. I just added a CI/CD test flow to test changes coming to main
